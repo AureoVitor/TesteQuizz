@@ -1,5 +1,13 @@
 import React from "react";
+import { StyleWrapper } from "./Styles";
 import { useCustomFetch } from "./hooks/useCustomFetch";
+import {
+  PageContainer,
+  ProgressBar,
+  QuizzContainer,
+  QuizzContent,
+  Score,
+} from "./components";
 
 type Question = {
   category: string;
@@ -15,13 +23,29 @@ ac901a4eaa57ca7c53e6344db882d499/raw/
 7b8ef5b706c2640f9b833fd02407204e89007113/questions.json`;
 
 export const App = () => {
-  const { data } = useCustomFetch<Question[]>(uri);
+  const { response } = useCustomFetch<Question[]>(uri);
+
   return (
-    <>
-      <div>App</div>
-      {data?.map(({ category }, key) => (
-        <h1 key={key}>{category}</h1>
-      ))}
-    </>
+    <StyleWrapper>
+      <PageContainer>
+        <QuizzContainer>
+          <ProgressBar />
+          {response.type === "pending" && <h1>Loading...</h1>}
+          {response.type === "success" && (
+            <QuizzContent
+              category={response.data[0].category}
+              type={response.data[0].type}
+              dificult={response.data[0].dificult}
+              questiontext={response.data[0].text}
+              answers={response.data[0].incorrect.concat(
+                response.data[0].correct
+              )}
+            />
+          )}
+          {response.type === "error" && <h1>{response.msg}</h1>}
+          <Score />
+        </QuizzContainer>
+      </PageContainer>
+    </StyleWrapper>
   );
 };
