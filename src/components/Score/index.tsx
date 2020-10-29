@@ -11,7 +11,7 @@ const Content = styled.div`
 `;
 
 interface IMultiFill {
-  value: number;
+  value: string;
   kind: "error" | "success" | "warning";
 }
 const MultiFill = styled.div`
@@ -21,7 +21,7 @@ const MultiFill = styled.div`
   transition: width 1s ease-in-out;
 `;
 
-// TODO inproov semantics
+// TODO inprove semantics
 const calcCases = ({ totalCount, correctCount, wrongCount }: IScore) => {
   const completed = correctCount + wrongCount;
   const remaining = totalCount - completed;
@@ -44,9 +44,9 @@ export const Score = (props: IScore) => {
 
   return (
     <Content>
-      <MultiFill value={worstCase} kind="error" />
-      <MultiFill value={averageCase} kind="warning" />
-      <MultiFill value={bestCase} kind="success" />
+      <MultiFill value={worstCase.toString()} kind="success" />
+      <MultiFill value={averageCase.toString()} kind="warning" />
+      <MultiFill value={bestCase.toString()} kind="error" />
     </Content>
   );
 };

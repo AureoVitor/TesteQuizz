@@ -26,7 +26,6 @@ export const QuizzContent = (props: IQuizzContent) => {
   const guess = (answer: string) => dispatch({ type: "guess", answer });
   const { pallet } = useTheme();
 
-  console.log(state.currntQuestion.dificult);
   const { guessState, currentIndex, currntQuestion, questionList } = state;
 
   const shouldShowNext = () =>
@@ -55,6 +54,7 @@ export const QuizzContent = (props: IQuizzContent) => {
       </SubTitle>
       <DificultyScale>
         {range(3).map((key) => (
+          // TODO fix stars not painting
           <StarIcon key={key} fill={"#fff"} />
         ))}
       </DificultyScale>
