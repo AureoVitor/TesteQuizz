@@ -18,11 +18,35 @@ const MultiFill = styled.div`
   height: 100%;
   width: ${({ value }: IMultiFill) => `${value}%`};
   background-color: ${({ theme, kind }) => theme.pallet.semantic[kind]};
+  transition: width 1s ease-in-out;
 `;
-export const Score = () => (
-  <Content>
-    <MultiFill value={45} kind="error" />
-    <MultiFill value={15} kind="warning" />
-    <MultiFill value={20} kind="success" />
-  </Content>
-);
+
+// TODO inproov semantics
+const calcCases = ({ totalCount, correctCount, wrongCount }: IScore) => {
+  const completed = correctCount + wrongCount;
+  const remaining = totalCount - completed;
+
+  const worstCase = (correctCount / totalCount) * 100;
+  const averageCase = (correctCount / completed) * 100 - worstCase;
+  const bestCase =
+    ((correctCount + remaining) / totalCount) * 100 - averageCase - worstCase;
+
+  return { averageCase, bestCase, worstCase };
+};
+
+interface IScore {
+  totalCount: number;
+  correctCount: number;
+  wrongCount: number;
+}
+export const Score = (props: IScore) => {
+  const { worstCase, averageCase, bestCase } = calcCases(props);
+
+  return (
+    <Content>
+      <MultiFill value={worstCase} kind="error" />
+      <MultiFill value={averageCase} kind="warning" />
+      <MultiFill value={bestCase} kind="success" />
+    </Content>
+  );
+};

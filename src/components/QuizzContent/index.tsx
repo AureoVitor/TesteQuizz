@@ -1,56 +1,16 @@
 import React from "react";
-import styled from "styled-components";
+import { useTheme } from "styled-components";
+import { AppContext } from "../../AppContext";
 import { ReactComponent as StarIcon } from "./starIcon.svg";
-
-const Wrapper = styled.main`
-  height: 90%;
-  width: 100%;
-  padding: 80px 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-
-const Title = styled.h1`
-  width: 100%;
-  font-size: 2rem;
-`;
-const SubTitle = styled.h4`
-  width: 100%;
-`;
-const Question = styled.h4`
-  width: 85%;
-  margin: 16px 0;
-  text-align: justify;
-  font-weight: lighter;
-`;
-const AnswerWrapper = styled.div`
-  width: 85%;
-  margin: 16px 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-`;
-const AnswerBtn = styled.button`
-  width: 45%;
-  height: 32px;
-  margin: 16px 0;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-
-  &:active {
-    transform: translateX(2px) translateY(2px);
-  }
-`;
-
-const DificultyScale = styled.div`
-  svg {
-    width: 15px;
-    margin: 8px 2px;
-    stroke: #000;
-  }
-`;
+import {
+  AnswerBtn,
+  AnswerWrapper,
+  DificultyScale,
+  Question,
+  SubTitle,
+  Title,
+  Wrapper,
+} from "./styleds";
 
 const range = (n: number) => Array.from(Array(n).keys());
 
@@ -62,9 +22,34 @@ export interface IQuizzContent {
   answers: string[];
 }
 export const QuizzContent = (props: IQuizzContent) => {
+  const [state, dispatch] = React.useContext(AppContext);
+  const guess = (answer: string) => dispatch({ type: "guess", answer });
+  const { pallet } = useTheme();
+
+  console.log(state.currntQuestion.dificult);
+  const { guessState, currentIndex, currntQuestion, questionList } = state;
+
+  const shouldShowNext = () =>
+    guessState !== "waiting" && currentIndex < questionList.length - 1;
+
+  const pickColor = (answer: string) => {
+    switch (guessState) {
+      case "correct":
+        return answer === currntQuestion.correct
+          ? pallet.semantic.success
+          : undefined;
+      case "wrong":
+        if (answer === currntQuestion.correct) return pallet.semantic.success;
+        if (answer === state.guessed) return pallet.semantic.error;
+        return undefined;
+      case "waiting":
+        return undefined;
+    }
+  };
+
   return (
     <Wrapper>
-      <Title>Question X of Y</Title>
+      <Title>{`Question ${currentIndex + 1} of ${questionList.length}`}</Title>
       <SubTitle>
         {props.category}: {props.type}
       </SubTitle>
@@ -75,9 +60,23 @@ export const QuizzContent = (props: IQuizzContent) => {
       </DificultyScale>
       <Question>{props.questiontext}</Question>
       <AnswerWrapper>
-        {props.answers.map((answer, key) => (
-          <AnswerBtn key={key}>{answer}</AnswerBtn>
-        ))}
+        {props.answers.map((answer, key) => {
+          return (
+            <AnswerBtn
+              key={key}
+              onClick={() => guess(answer)}
+              color={pickColor(answer)}
+              disabled={guessState !== "waiting"}
+            >
+              {answer}
+            </AnswerBtn>
+          );
+        })}
+        {guessState === "correct" && <Title>Correct!</Title>}
+        {guessState === "wrong" && <Title>Wrong!</Title>}
+        {shouldShowNext() && (
+          <AnswerBtn onClick={() => dispatch({ type: "pass" })}>Next</AnswerBtn>
+        )}
       </AnswerWrapper>
     </Wrapper>
   );

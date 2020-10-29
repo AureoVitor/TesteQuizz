@@ -15,8 +15,16 @@ const Fill = styled.div`
   transition: width 1s ease-in-out;
 `;
 
-export const ProgressBar = () => (
-  <Container>
-    <Fill value={70} />
-  </Container>
-);
+interface IProgressBar {
+  current: number;
+  total: number;
+}
+export const ProgressBar = (props: IProgressBar) => {
+  const proggress = (props.current / props.total) * 100;
+
+  return (
+    <Container>
+      <Fill value={proggress} />
+    </Container>
+  );
+};
