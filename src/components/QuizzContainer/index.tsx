@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
+// Styling Components
 export const QuizzContainer = styled.div`
   height: 90%;
   max-width: 560px;

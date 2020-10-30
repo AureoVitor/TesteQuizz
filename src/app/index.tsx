@@ -1,36 +1,32 @@
 import React from "react";
-import { StyleWrapper } from "./Styles";
-import { useCustomFetch } from "./hooks/useCustomFetch";
+import { StyleWrapper } from "../Styles";
+import { useCustomFetch } from "../hooks/useCustomFetch";
 import {
   PageContainer,
   ProgressBar,
   QuizzContainer,
   QuizzContent,
   Score,
-} from "./components";
+} from "../components";
 import { Question } from "./AppTypedefs";
 import { appReducer, initState, AppContext } from "./AppContext";
 
-const uri = `https://gist.githubusercontent.com/antoniopresto/
-ac901a4eaa57ca7c53e6344db882d499/raw/
-7b8ef5b706c2640f9b833fd02407204e89007113/questions.json`;
-
 export const App = () => {
+  const { response } = useCustomFetch<Question[]>(getUri());
   const [appState, dispatch] = React.useReducer(appReducer, initState);
-  const { response } = useCustomFetch<Question[]>(uri);
-
-  const {
-    currentIndex,
-    currntQuestion,
-    questionList,
-    correctGuesses,
-    wrongGuesses,
-  } = appState;
 
   React.useEffect(() => {
     if (response.type === "success")
       dispatch({ type: "init", questions: response.data });
   }, [response]);
+
+  const {
+    currentIndex,
+    currentQuestion,
+    questionList,
+    correctGuesses,
+    wrongGuesses,
+  } = appState;
 
   return (
     <StyleWrapper>
@@ -44,12 +40,12 @@ export const App = () => {
             {response.type === "pending" && <h1>Loading...</h1>}
             {response.type === "success" && (
               <QuizzContent
-                category={currntQuestion.category}
-                type={currntQuestion.type}
-                dificult={currntQuestion.dificult}
-                questiontext={currntQuestion.text}
-                answers={currntQuestion.incorrect.concat(
-                  currntQuestion.correct
+                category={currentQuestion.category}
+                type={currentQuestion.type}
+                dificult={currentQuestion.dificult}
+                questiontext={currentQuestion.text}
+                answers={currentQuestion.incorrect.concat(
+                  currentQuestion.correct
                 )}
               />
             )}
@@ -65,3 +61,7 @@ export const App = () => {
     </StyleWrapper>
   );
 };
+
+const getUri = () => `https://gist.githubusercontent.com/antoniopresto/
+ac901a4eaa57ca7c53e6344db882d499/raw/
+7b8ef5b706c2640f9b833fd02407204e89007113/questions.json`;

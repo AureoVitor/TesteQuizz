@@ -1,6 +1,6 @@
 import React from "react";
 import { useTheme } from "styled-components";
-import { AppContext } from "../../AppContext";
+import { AppContext } from "../../app/AppContext";
 import { ReactComponent as StarIcon } from "./starIcon.svg";
 import {
   AnswerBtn,
@@ -10,9 +10,7 @@ import {
   SubTitle,
   Title,
   Wrapper,
-} from "./styleds";
-
-const range = (n: number) => Array.from(Array(n).keys());
+} from "./stylingComponents";
 
 export interface IQuizzContent {
   category: string;
@@ -22,23 +20,24 @@ export interface IQuizzContent {
   answers: string[];
 }
 export const QuizzContent = (props: IQuizzContent) => {
-  const [state, dispatch] = React.useContext(AppContext);
-  const guess = (answer: string) => dispatch({ type: "guess", answer });
   const { pallet } = useTheme();
+  const [state, dispatch] = React.useContext(AppContext);
 
-  const { guessState, currentIndex, currntQuestion, questionList } = state;
+  const { guessState, currentIndex, currentQuestion, questionList } = state;
+
+  const handleGuess = (answer: string) => dispatch({ type: "guess", answer });
 
   const shouldShowNext = () =>
     guessState !== "waiting" && currentIndex < questionList.length - 1;
 
-  const pickColor = (answer: string) => {
+  const pickColorOnResult = (answer: string) => {
     switch (guessState) {
       case "correct":
-        return answer === currntQuestion.correct
+        return answer === currentQuestion.correct
           ? pallet.semantic.success
           : undefined;
       case "wrong":
-        if (answer === currntQuestion.correct) return pallet.semantic.success;
+        if (answer === currentQuestion.correct) return pallet.semantic.success;
         if (answer === state.guessed) return pallet.semantic.error;
         return undefined;
       case "waiting":
@@ -64,8 +63,8 @@ export const QuizzContent = (props: IQuizzContent) => {
           return (
             <AnswerBtn
               key={key}
-              onClick={() => guess(answer)}
-              color={pickColor(answer)}
+              onClick={() => handleGuess(answer)}
+              color={pickColorOnResult(answer)}
               disabled={guessState !== "waiting"}
             >
               {answer}
@@ -81,3 +80,6 @@ export const QuizzContent = (props: IQuizzContent) => {
     </Wrapper>
   );
 };
+
+// Utilities
+const range = (n: number) => Array.from(Array(n).keys());

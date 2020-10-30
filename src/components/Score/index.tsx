@@ -1,6 +1,24 @@
 import React from "react";
 import styled from "styled-components";
 
+interface IScore {
+  totalCount: number;
+  correctCount: number;
+  wrongCount: number;
+}
+export const Score = (props: IScore) => {
+  const { garantedPoints, possiblePoints, lostPoints } = calcCases(props);
+
+  return (
+    <Content>
+      <MultiFill value={garantedPoints} kind="success" />
+      <MultiFill value={possiblePoints} kind="warning" />
+      <MultiFill value={lostPoints} kind="error" />
+    </Content>
+  );
+};
+
+// Styling Components
 const Content = styled.div`
   height: 24px;
   width: 60%;
@@ -11,42 +29,27 @@ const Content = styled.div`
 `;
 
 interface IMultiFill {
-  value: string;
+  value: number;
   kind: "error" | "success" | "warning";
 }
 const MultiFill = styled.div`
   height: 100%;
-  width: ${({ value }: IMultiFill) => `${value}%`};
+  width: ${({ value }: IMultiFill) => `${value.toString()}%`}; /* bug NaN */
   background-color: ${({ theme, kind }) => theme.pallet.semantic[kind]};
   transition: width 1s ease-in-out;
 `;
 
-// TODO inprove semantics
+// Utilities
 const calcCases = ({ totalCount, correctCount, wrongCount }: IScore) => {
   const completed = correctCount + wrongCount;
   const remaining = totalCount - completed;
 
-  const worstCase = (correctCount / totalCount) * 100;
-  const averageCase = (correctCount / completed) * 100 - worstCase;
-  const bestCase =
-    ((correctCount + remaining) / totalCount) * 100 - averageCase - worstCase;
+  const garantedPoints = (correctCount / totalCount) * 100;
+  const possiblePoints = (correctCount / completed) * 100 - garantedPoints;
+  const lostPoints =
+    ((correctCount + remaining) / totalCount) * 100 -
+    possiblePoints -
+    garantedPoints;
 
-  return { averageCase, bestCase, worstCase };
-};
-
-interface IScore {
-  totalCount: number;
-  correctCount: number;
-  wrongCount: number;
-}
-export const Score = (props: IScore) => {
-  const { worstCase, averageCase, bestCase } = calcCases(props);
-
-  return (
-    <Content>
-      <MultiFill value={worstCase.toString()} kind="success" />
-      <MultiFill value={averageCase.toString()} kind="warning" />
-      <MultiFill value={bestCase.toString()} kind="error" />
-    </Content>
-  );
+  return { garantedPoints, possiblePoints, lostPoints };
 };
